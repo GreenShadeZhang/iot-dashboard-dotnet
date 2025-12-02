@@ -19,6 +19,13 @@
   - 电池电量监控
   - 最后更新时间
 
+- **通讯日志监控** ⭐ 新功能
+  - 实时显示发送的指令和接收的数据
+  - 分离展示，便于学习通讯协议
+  - 包含时间戳和十六进制原始数据
+  - 自动记录最近 50 条通讯记录
+  - 详细说明请看：[通讯日志功能说明](docs/COMMUNICATION_LOG_CN.md)
+
 - **通讯协议**
   - 基于串口（Serial Port）的设备通讯
   - 自定义二进制协议，支持校验和
@@ -239,6 +246,8 @@ _deviceController = new DeviceController(communication);
 - [🏗️ 架构文档](docs/ARCHITECTURE.md) - 系统架构和设计说明
 - [🐛 故障排除](docs/TROUBLESHOOTING.md) - 常见问题解决方案
 - [🤝 贡献指南](CONTRIBUTING.md) - 如何为项目做出贡献
+- [📡 通讯日志功能](docs/COMMUNICATION_LOG_CN.md) - 通讯日志使用说明和学习指南 ⭐
+- [🖼️ 界面预览](docs/UI_PREVIEW_COMMUNICATION_LOG.md) - 通讯日志界面布局和数据包图解
 
 ## 快速示例
 

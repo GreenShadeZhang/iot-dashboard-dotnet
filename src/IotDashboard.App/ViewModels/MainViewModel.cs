@@ -45,6 +45,9 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _lastUpdate = "Never";
 
+    public ObservableCollection<CommunicationLogEntry> SentCommands { get; } = new();
+    public ObservableCollection<CommunicationLogEntry> ReceivedData { get; } = new();
+
     public ObservableCollection<string> AvailablePorts { get; } = new();
 
     public MainViewModel()
@@ -90,6 +93,7 @@ public partial class MainViewModel : ObservableObject
             _deviceController = new DeviceController(communication);
             _deviceController.StateUpdated += OnStateUpdated;
             _deviceController.ErrorOccurred += OnErrorOccurred;
+            _deviceController.CommunicationLogged += OnCommunicationLogged;
 
             var connected = await _deviceController.ConnectAsync();
             if (connected)
@@ -137,6 +141,7 @@ public partial class MainViewModel : ObservableObject
                 await _deviceController.DisconnectAsync();
                 _deviceController.StateUpdated -= OnStateUpdated;
                 _deviceController.ErrorOccurred -= OnErrorOccurred;
+                _deviceController.CommunicationLogged -= OnCommunicationLogged;
                 _deviceController.Dispose();
                 _deviceController = null;
             }
@@ -208,6 +213,31 @@ public partial class MainViewModel : ObservableObject
         _dispatcherQueue.TryEnqueue(() =>
         {
             StatusMessage = $"Error: {error}";
+        });
+    }
+
+    private void OnCommunicationLogged(object? sender, CommunicationLogEntry entry)
+    {
+        _dispatcherQueue.TryEnqueue(() =>
+        {
+            if (entry.Direction == CommunicationDirection.Sent)
+            {
+                SentCommands.Insert(0, entry);
+                // Keep only last 50 entries
+                while (SentCommands.Count > 50)
+                {
+                    SentCommands.RemoveAt(SentCommands.Count - 1);
+                }
+            }
+            else
+            {
+                ReceivedData.Insert(0, entry);
+                // Keep only last 50 entries
+                while (ReceivedData.Count > 50)
+                {
+                    ReceivedData.RemoveAt(ReceivedData.Count - 1);
+                }
+            }
         });
     }
 }

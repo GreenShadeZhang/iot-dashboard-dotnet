@@ -14,6 +14,7 @@ public class DeviceController : IDisposable
 
     public event EventHandler<DeviceState>? StateUpdated;
     public event EventHandler<string>? ErrorOccurred;
+    public event EventHandler<CommunicationLogEntry>? CommunicationLogged;
 
     public DeviceState CurrentState { get; private set; } = new();
 
@@ -41,7 +42,17 @@ public class DeviceController : IDisposable
             Type = CommandType.SetLight,
             Data = new[] { (byte)(on ? 1 : 0) }
         };
-        await _communication.SendAsync(command.ToBytes());
+        var bytes = command.ToBytes();
+        await _communication.SendAsync(bytes);
+        
+        // Log sent command
+        CommunicationLogged?.Invoke(this, new CommunicationLogEntry
+        {
+            Direction = CommunicationDirection.Sent,
+            CommandType = command.Type,
+            RawData = bytes,
+            Description = $"Set Light {(on ? "ON" : "OFF")}"
+        });
     }
 
     public async Task SetFanSpeedAsync(int speed)
@@ -54,7 +65,17 @@ public class DeviceController : IDisposable
             Type = CommandType.SetFanSpeed,
             Data = new[] { (byte)speed }
         };
-        await _communication.SendAsync(command.ToBytes());
+        var bytes = command.ToBytes();
+        await _communication.SendAsync(bytes);
+        
+        // Log sent command
+        CommunicationLogged?.Invoke(this, new CommunicationLogEntry
+        {
+            Direction = CommunicationDirection.Sent,
+            CommandType = command.Type,
+            RawData = bytes,
+            Description = $"Set Fan Speed to {speed}%"
+        });
     }
 
     public async Task RequestStateAsync()
@@ -64,7 +85,17 @@ public class DeviceController : IDisposable
             Type = CommandType.GetState,
             Data = Array.Empty<byte>()
         };
-        await _communication.SendAsync(command.ToBytes());
+        var bytes = command.ToBytes();
+        await _communication.SendAsync(bytes);
+        
+        // Log sent command
+        CommunicationLogged?.Invoke(this, new CommunicationLogEntry
+        {
+            Direction = CommunicationDirection.Sent,
+            CommandType = command.Type,
+            RawData = bytes,
+            Description = "Request Device State"
+        });
     }
 
     public async Task RequestSensorDataAsync()
@@ -74,7 +105,17 @@ public class DeviceController : IDisposable
             Type = CommandType.GetSensorData,
             Data = Array.Empty<byte>()
         };
-        await _communication.SendAsync(command.ToBytes());
+        var bytes = command.ToBytes();
+        await _communication.SendAsync(bytes);
+        
+        // Log sent command
+        CommunicationLogged?.Invoke(this, new CommunicationLogEntry
+        {
+            Direction = CommunicationDirection.Sent,
+            CommandType = command.Type,
+            RawData = bytes,
+            Description = "Request Sensor Data"
+        });
     }
 
     public async Task SendHeartbeatAsync()
@@ -84,7 +125,17 @@ public class DeviceController : IDisposable
             Type = CommandType.Heartbeat,
             Data = Array.Empty<byte>()
         };
-        await _communication.SendAsync(command.ToBytes());
+        var bytes = command.ToBytes();
+        await _communication.SendAsync(bytes);
+        
+        // Log sent command
+        CommunicationLogged?.Invoke(this, new CommunicationLogEntry
+        {
+            Direction = CommunicationDirection.Sent,
+            CommandType = command.Type,
+            RawData = bytes,
+            Description = "Heartbeat"
+        });
     }
 
     private void OnDataReceived(object? sender, DataReceivedEventArgs e)
@@ -149,6 +200,25 @@ public class DeviceController : IDisposable
 
     private void ProcessCommand(ProtocolCommand command)
     {
+        // Log received command
+        string description = command.Type switch
+        {
+            CommandType.GetState => $"State: Temp={command.Data.ElementAtOrDefault(0)}°C, Humid={command.Data.ElementAtOrDefault(1)}%, Light={command.Data.ElementAtOrDefault(2)}, Fan={command.Data.ElementAtOrDefault(3)}%, Online={command.Data.ElementAtOrDefault(4)}, Batt={command.Data.ElementAtOrDefault(5)}%",
+            CommandType.GetSensorData => $"Sensors: Temp={command.Data.ElementAtOrDefault(0)}°C, Humid={command.Data.ElementAtOrDefault(1)}%",
+            CommandType.Heartbeat => "Heartbeat Response",
+            CommandType.SetLight => $"Light Confirmed: {(command.Data.ElementAtOrDefault(2) != 0 ? "ON" : "OFF")}",
+            CommandType.SetFanSpeed => $"Fan Speed Confirmed: {command.Data.ElementAtOrDefault(3)}%",
+            _ => $"Unknown Command: {command.Type}"
+        };
+
+        CommunicationLogged?.Invoke(this, new CommunicationLogEntry
+        {
+            Direction = CommunicationDirection.Received,
+            CommandType = command.Type,
+            RawData = command.ToBytes(),
+            Description = description
+        });
+
         switch (command.Type)
         {
             case CommandType.GetState:
