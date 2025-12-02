@@ -2,6 +2,8 @@
 
 一个基于 WinUI 3 的智能家居/物联网监控仪表盘应用程序，用于展示串口数据传输和可视化。
 
+> 🚀 **[快速开始指南](docs/QUICKSTART.md)** - 5 分钟内运行您的第一个 IoT 项目！
+
 ## 功能特性
 
 - **环境传感器监控**
@@ -229,32 +231,79 @@ _deviceController = new DeviceController(communication);
 3. 更新协议解析逻辑
 4. 在 UI 中添加显示控件
 
+## 文档
+
+- [📖 协议文档](docs/PROTOCOL.md) - 详细的串口通讯协议说明
+- [🔧 Arduino 设置](docs/ARDUINO_SETUP.md) - Arduino 硬件设置和固件烧录指南
+- [💻 开发指南](docs/DEVELOPMENT.md) - 开发环境配置和扩展开发
+- [🏗️ 架构文档](docs/ARCHITECTURE.md) - 系统架构和设计说明
+- [🐛 故障排除](docs/TROUBLESHOOTING.md) - 常见问题解决方案
+- [🤝 贡献指南](CONTRIBUTING.md) - 如何为项目做出贡献
+
+## 快速示例
+
+### 使用场景示例
+
+```
+1. 早上起床 → 打开 IoT Dashboard
+2. 连接到卧室设备 (Arduino)
+3. 查看当前室温: 23°C, 湿度: 55%
+4. 打开灯光 → 点击 "Turn On"
+5. 调节风扇到 60% 速度
+6. 设备自动保持通讯，实时更新数据
+```
+
+### 代码示例 - 自定义通讯方式
+
+```csharp
+// 实现 WebSocket 通讯
+public class WebSocketCommunication : IDeviceCommunication
+{
+    private ClientWebSocket _ws = new();
+    
+    public async Task<bool> ConnectAsync()
+    {
+        await _ws.ConnectAsync(new Uri("ws://192.168.1.100:8080"), CancellationToken.None);
+        return true;
+    }
+    
+    public async Task SendAsync(byte[] data)
+    {
+        await _ws.SendAsync(data, WebSocketMessageType.Binary, true, CancellationToken.None);
+    }
+}
+
+// 在应用中使用
+var communication = new WebSocketCommunication();
+var controller = new DeviceController(communication);
+await controller.ConnectAsync();
+```
+
+## 截图
+
+*注: 应用需要在 Windows 环境中运行以生成截图*
+
 ## 参考项目
 
 - [ElectronBot.DotNet](https://github.com/maker-community/ElectronBot.DotNet) - WinUI 框架参考
 - [Letianpai MCU](https://github.com/Letianpai-Robot/MCU/tree/main/L81_MCU_PVT) - 串口协议参考
 
-## 故障排除
+## 路线图
 
-### 无法找到 COM 端口
-- 确保 Arduino 已正确连接到计算机
-- 检查设备管理器中的端口
-- 安装 CH340 或 FTDI 驱动程序（如果需要）
+- [x] 基础串口通讯
+- [x] 灯光和风扇控制
+- [x] 温湿度监控
+- [ ] WebSocket 通讯支持
+- [ ] MQTT 协议支持
+- [ ] 数据历史记录
+- [ ] 图表显示
+- [ ] 多设备管理
+- [ ] 自动化规则
+- [ ] 通知提醒
 
-### 连接失败
-- 确认选择了正确的 COM 端口
-- 关闭其他占用串口的程序（如 Arduino IDE 串口监视器）
-- 检查波特率设置（默认 115200）
+## 常见问题
 
-### 设备不响应
-- 重新烧录 Arduino 固件
-- 检查硬件连接
-- 重启应用程序和 Arduino
-
-### 编译错误
-- 确保安装了 .NET 8.0 SDK
-- 确保安装了 Windows App SDK
-- 运行 `dotnet restore` 恢复 NuGet 包
+详见 [故障排除文档](docs/TROUBLESHOOTING.md)
 
 ## 许可证
 
