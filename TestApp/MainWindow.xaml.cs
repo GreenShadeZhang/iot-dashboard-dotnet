@@ -1,7 +1,7 @@
 using Microsoft.UI.Xaml;
-using IotDashboard.App.ViewModels;
+using TestApp.ViewModels;
 
-namespace IotDashboard.App
+namespace TestApp
 {
     /// <summary>
     /// Main window of the IoT Dashboard application
