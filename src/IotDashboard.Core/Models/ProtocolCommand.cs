@@ -114,7 +114,8 @@ public class ProtocolCommand
             checksum ^= data[i];
         }
 
-        if (checksum != bytes[3 + dataLength]) return null;
+        var checksumIndex = 3 + dataLength;
+        if (checksum != bytes[checksumIndex]) return null;
 
         return new ProtocolCommand
         {

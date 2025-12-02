@@ -144,7 +144,7 @@ public class DeviceController : IDisposable
 
         // Try to parse
         command = ProtocolCommand.FromBytes(commandBytes);
-        return true;
+        return command != null; // Return true only if parsing succeeded
     }
 
     private void ProcessCommand(ProtocolCommand command)

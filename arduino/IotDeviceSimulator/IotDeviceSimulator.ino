@@ -58,6 +58,11 @@ int bufferIndex = 0;
 unsigned long lastUpdate = 0;
 const unsigned long UPDATE_INTERVAL = 1000; // Update sensors every second
 
+// Battery simulation constants
+const int BATTERY_DRAIN_MAX = 2;
+const int BATTERY_RESET_THRESHOLD = 20;
+const int BATTERY_RESET_VALUE = 100;
+
 void setup() {
   // Initialize serial communication
   Serial.begin(115200);
@@ -116,8 +121,10 @@ void updateSensors() {
   if (state.humidity > 70.0) state.humidity = 70.0;
   
   // Simulate battery drain
-  state.batteryLevel -= random(0, 2);
-  if (state.batteryLevel < 20) state.batteryLevel = 100; // Reset for demo
+  state.batteryLevel -= random(0, BATTERY_DRAIN_MAX);
+  if (state.batteryLevel < BATTERY_RESET_THRESHOLD) {
+    state.batteryLevel = BATTERY_RESET_VALUE; // Reset for demo
+  }
 }
 
 void processSerialData() {

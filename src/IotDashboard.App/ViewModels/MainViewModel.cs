@@ -95,12 +95,19 @@ public partial class MainViewModel : ObservableObject
                 IsConnected = true;
                 StatusMessage = $"Connected to {SelectedPort}";
                 
-                // Start heartbeat timer
+                // Start heartbeat timer with error handling
                 _heartbeatTimer = new System.Threading.Timer(async _ =>
                 {
-                    if (_deviceController != null && IsConnected)
+                    try
                     {
-                        await _deviceController.RequestStateAsync();
+                        if (_deviceController != null && IsConnected)
+                        {
+                            await _deviceController.RequestStateAsync();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Heartbeat error: {ex.Message}");
                     }
                 }, null, TimeSpan.Zero, TimeSpan.FromSeconds(2));
             }
@@ -149,8 +156,10 @@ public partial class MainViewModel : ObservableObject
 
         try
         {
-            await _deviceController.SetLightAsync(!LightOn);
-            LightOn = !LightOn;
+            var newState = !LightOn;
+            await _deviceController.SetLightAsync(newState);
+            // Note: LightOn will be updated when device confirms the state change
+            // via OnStateUpdated event handler
         }
         catch (Exception ex)
         {
