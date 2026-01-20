@@ -1,0 +1,63 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-core:
+    name: Build Core Library
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+    
+    - name: Restore dependencies
+      run: dotnet restore src/IotDashboard.Core/IotDashboard.Core.csproj
+    
+    - name: Build Core
+      run: dotnet build src/IotDashboard.Core/IotDashboard.Core.csproj --configuration Release --no-restore
+    
+    - name: Test Core (if tests exist)
+      run: dotnet test src/IotDashboard.Core/IotDashboard.Core.csproj --configuration Release --no-build --verbosity normal
+      continue-on-error: true
+
+  build-winui:
+    name: Build WinUI App
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+    
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.1
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build Core Library
+      run: dotnet build src/IotDashboard.Core/IotDashboard.Core.csproj --configuration Release --no-restore
+    
+    - name: Build WinUI App
+      run: dotnet build src/IotDashboard.App/IotDashboard.App.csproj --configuration Release --no-restore
+      continue-on-error: true
+    
+    - name: Upload build artifacts
+      if: success()
+      uses: actions/upload-artifact@v3
+      with:
+        name: winui-app
+        path: src/IotDashboard.App/bin/Release/
+        retention-days: 7

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="IotDashboard.App.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:IotDashboard.App"
+    xmlns:converters="using:IotDashboard.App.Converters">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <!-- Other merged dictionaries here -->
+            </ResourceDictionary.MergedDictionaries>
+            
+            <!-- Value Converters -->
+            <converters:BoolNegationConverter x:Key="BoolNegationConverter"/>
+            <converters:ConnectButtonTextConverter x:Key="ConnectButtonTextConverter"/>
+            <converters:OnlineStatusColorConverter x:Key="OnlineStatusColorConverter"/>
+            <converters:OnlineStatusTextConverter x:Key="OnlineStatusTextConverter"/>
+            <converters:BatteryColorConverter x:Key="BatteryColorConverter"/>
+            <converters:BatteryLevelTextConverter x:Key="BatteryLevelTextConverter"/>
+            <converters:LightIconConverter x:Key="LightIconConverter"/>
+            <converters:LightColorConverter x:Key="LightColorConverter"/>
+            <converters:LightStatusTextConverter x:Key="LightStatusTextConverter"/>
+            <converters:LightButtonTextConverter x:Key="LightButtonTextConverter"/>
+            <converters:FanSpeedTextConverter x:Key="FanSpeedTextConverter"/>
+            <converters:FanSpeedTooltipConverter x:Key="FanSpeedTooltipConverter"/>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
